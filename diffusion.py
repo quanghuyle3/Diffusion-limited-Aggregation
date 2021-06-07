@@ -2,6 +2,8 @@ from mesa import Agent, Model
 from mesa.space import MultiGrid
 from mesa.time import RandomActivation
 
+from mesa.datacollection import DataCollector
+
 
 class ParticleAgent(Agent):
     def __init__(self, unique_id, model):
@@ -45,5 +47,19 @@ class EnvModel(Model):
             y = self.random.randrange(self.grid.height)
             self.grid.place_agent(agent, (x, y))
 
+        # runnuing attribute for visualization
+        self.running = True
+
+        self.num_mov_agents = 0
+
+        # Datacollector
+        self.datacollector = DataCollector(
+            {'Num_mov_agents': 'num_mov_agents'}, {})
+
     def step(self):
         self.schedule.step()
+
+        self.num_mov_agents = len(
+            [agent for agent in self.schedule.agents if agent.type])
+
+        self.datacollector.collect(self)
